@@ -25,6 +25,8 @@ namespace TTT_Classes
         private RealTimeSince SetActive { get; set; }
         private IList<Entity> Items { get; set; } = new List<Entity>();
         private int MaxItems { get; set; } = 1;
+        private bool HadDisguiser = false;
+        private bool HadDisguiserEnabled = false;
 
 
         [ClientRpc]
@@ -50,6 +52,11 @@ namespace TTT_Classes
             Entity.Inventory.SetActiveSlot(0);
             SetHolsterdClient();
             (MaxItems, Entity.Inventory.MaxItems) = (Entity.Inventory.MaxItems, MaxItems);
+
+            HadDisguiser = Entity.HasDisguiser;
+            HadDisguiserEnabled = Entity.DisguiserEnabled;
+            Entity.HasDisguiser = true;
+            Entity.DisguiserEnabled = true;
         }
 
         [GameEvent.Tick.Server]
@@ -59,6 +66,9 @@ namespace TTT_Classes
             {
                 Active = false;
                 Entity.EnableDrawing = true;
+
+                Entity.HasDisguiser = HadDisguiser;
+                Entity.DisguiserEnabled = HadDisguiserEnabled;
 
                 // If someone altered the items of the player, assume it is permanent and respect that
                 if (Entity.Inventory.Items.Count > 1 || Entity.Inventory.MaxItems > 1) return;
